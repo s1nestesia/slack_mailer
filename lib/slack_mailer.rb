@@ -23,14 +23,14 @@ module Slack
       end
     end
 
-    def mail(to: nil, template: nil, use_sidekiq: true)
-      channel = '#' << to
+    def mail(to: nil, template: nil, bot_name: "#{self.class.name}##{template}", use_sidekiq: true)
+      channel = "##{to}"
       instance_variables = self.instance_variables.map { |instance_variable|
         { instance_variable => self.instance_variable_get(instance_variable) }
       }.reduce(:merge)
       message = collect_message(template, instance_variables)
       method = use_sidekiq ? :send_message : :send_direct_message
-      self.class.send(method, channel, "#{self.class.name}##{template}", message)
+      self.class.send(method, channel, bot_name, message)
     end
 
     def collect_message(template, instance_variables)
